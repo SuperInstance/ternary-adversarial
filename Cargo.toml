@@ -1,0 +1,11 @@
+[package]
+name = "ternary-adversarial"
+version = "0.1.0"
+edition = "2021"
+description = "Adversarial testing for ternary agents — stress-testing strategies against worst-case environments"
+license = "MIT"
+repository = "https://github.com/SuperInstance/ternary-adversarial"
+keywords = ["ternary", "adversarial", "testing", "robustness"]
+categories = ["algorithms", "mathematics", "science"]
+
+[dev-dependencies]
