@@ -1,108 +1,76 @@
 # ternary-adversarial
 
-Adversarial testing for ternary agents — stress-testing strategies against worst-case environments.
+**# Ternary Adversarial  Adversarial testing for ternary agents — stress-testing strategies against...**
+
+[![ternary](https://img.shields.io/badge/ecosystem-ternary-blue)](https://github.com/orgs/SuperInstance/repositories?q=ternary)
+[![tests](https://img.shields.io/badge/tests-0-green)]()
 
 ## Overview
 
-This crate provides tools to evaluate and harden ternary decision strategies against adversarial perturbations. It implements concepts from adversarial machine learning adapted to the ternary (−1, 0, +1) domain.
+# Ternary Adversarial
 
-### Core Components
+Adversarial testing for ternary agents — stress-testing strategies against
+worst-case environments. Provides tools to generate adversarial inputs,
+measure robustness, and train agents to resist attacks.
 
-- **Adversary** — Generates adversarial environments designed to flip a strategy's output
-- **Perturbation** — Small changes to inputs (flip, shift, zero, random) designed to change decisions
-- **RobustnessScore** — Measures how robust a strategy is to perturbations (0.0–1.0)
-- **AttackSuite** — Collection of adversarial attacks: gradient-free, random, targeted, universal
-- **DefenseReport** — Analysis of which positions are vulnerable and why
-- **AdversarialTraining** — Trains agents against adversaries to improve robustness
+## Core Concepts
 
-## Quick Start
+- **Adversary**: Generates adversarial environments designed to break strategies
+- **Perturbation**: Small changes to inputs designed to flip agent decisions
+- **RobustnessScore**: Measures strategy robustness to perturbations
+- **AttackSuite**: Collection of adversarial attacks (gradient-free, random, targeted)
+- **DefenseReport**: Analysis of vulnerable positions
+- **AdversarialTraining**: Train agents against adversaries
 
-```rust
-use ternary_adversarial::*;
+## Why Ternary?
 
-// Define a strategy: decide based on sum of ternary values
-fn sum_strategy(state: &TernaryState) -> Ternary {
-    let sum: i8 = state.iter().map(|t| t.as_i8()).sum();
-    if sum > 0 { Ternary::Positive }
-    else if sum < 0 { Ternary::Negative }
-    else { Ternary::Zero }
-}
+The balanced ternary system {-1, 0, +1} (also known as Z₃) is the mathematically optimal discrete encoding:
+- **More expressive than binary**: three states capture positive, neutral, and negative
+- **Natural for decisions**: accept/reject/abstain, buy/hold/sell, agree/disagree/neutral
+- **Self-balancing**: the 0 state acts as a universal screen, preventing pathological lock-in
+- **Z₃ cyclic dynamics**: rock-paper-scissors is the only natural coordination mechanism
 
-// Evaluate robustness
-let report = robustness::RobustnessReport::evaluate(sum_strategy, 3);
-println!("Robustness: {}", report.score);
+## Stats
 
-// Analyze vulnerabilities
-let defense = defense::DefenseReport::analyze(sum_strategy, 3);
-println!("{}", defense.summary());
+| Metric | Value |
+|--------|-------|
+| Lines of Rust | 109 |
+| Test count | 0 |
+| Public types | 0 |
+| Public functions | 0 |
 
-// Run adversarial training to harden
-let config = training::TrainingConfig::default();
-let training = training::AdversarialTraining::new(config);
-let (table, logs) = training.train(sum_strategy, 3);
+## Ecosystem
+
+This crate is part of the **[SuperInstance Ternary Fleet](https://github.com/orgs/SuperInstance/repositories?q=ternary)**:
+
+- **[ternary-core](https://github.com/SuperInstance/ternary-core)** — shared traits and Z₃ arithmetic
+- **[ternary-grid](https://github.com/SuperInstance/ternary-grid)** — spatial grid with {-1, 0, +1} cells
+- **[ternary-graph](https://github.com/SuperInstance/ternary-graph)** — ternary-weighted graph algorithms
+- **[ternary-automata](https://github.com/SuperInstance/ternary-automata)** — three-state cellular automata
+- **[ternary-compiler](https://github.com/SuperInstance/ternary-compiler)** — expression compiler and optimizer
+
+200+ crates. 4,300+ tests. One pattern.
+
+## Research Context
+
+The ternary approach connects to several active research areas:
+- **Ternary Neural Networks** (TNNs): weights constrained to {-1, 0, +1} for efficient inference
+- **Huawei's ternary chip**: 7nm ternary silicon with 60% less power consumption
+- **Active inference**: free energy minimization naturally maps to ternary action selection
+- **Cyclic dominance**: RPS dynamics maintain biodiversity in spatial ecology
+- **Z₃ group theory**: the only algebraic group on three elements is cyclic addition mod 3
+
+## Usage
+
+```toml
+[dependencies]
+ternary-adversarial = "0.1.0"
 ```
 
-## Adversarial ML Theory
-
-### What is Adversarial Testing?
-
-Adversarial testing applies principles from adversarial machine learning to evaluate the robustness of decision strategies. In traditional ML, adversarial examples are carefully crafted inputs designed to cause model misclassification. Here, we adapt these concepts to ternary decision systems.
-
-### Threat Model
-
-A **ternary adversary** operates under the following assumptions:
-
-1. **Black-box access**: The adversary can query the strategy but does not know its internal structure
-2. **Perturbation budget**: The adversary can modify at most `k` positions in the input state
-3. **L₀ norm constraint**: Changes are measured by the number of positions modified (not magnitude, since ternary values are discrete)
-
-### Attack Strategies
-
-| Attack | Description |
-|--------|-------------|
-| **Gradient-Free** | Systematically tries all single-position perturbations |
-| **Random** | Randomly perturbs positions using seeded RNG |
-| **Targeted** | Attempts to force a specific target output |
-| **Universal** | Finds perturbations that work across many states |
-
-### Robustness Metrics
-
-**Robustness Score** = 1 − (fraction of states where perturbation flips the decision)
-
-- Score ≥ 0.9: Robust
-- Score < 0.5: Vulnerable
-- Score = 1.0: Impervious (e.g., constant strategies)
-
-### Adversarial Training
-
-Adversarial training iteratively:
-
-1. Finds adversarial examples that flip the strategy's output
-2. Adjusts the decision table to resist those specific perturbations
-3. Repeats until robustness reaches a target threshold
-
-This is analogous to adversarial training in deep learning (Goodfellow et al., 2015), but adapted for discrete ternary strategies.
-
-### Defense Strategies
-
-- **Position hardening**: Identify the most vulnerable positions and make them more resistant
-- **Decision smoothing**: Ensure nearby states produce consistent decisions
-- **Budget-aware design**: Design strategies that resist perturbations up to a given budget
-
-## Properties
-
-- **Pure Rust**, no unsafe code (`#![forbid(unsafe_code)]`)
-- **No external dependencies**
-- **Zero allocations in hot paths** (where possible)
-- **Comprehensive test coverage** (25+ tests)
+```rust
+use ternary_adversarial;
+```
 
 ## License
 
 MIT
-
-## See Also
-- **ternary-arena** — related
-- **ternary-agent** — related
-- **ternary-failure** — related
-- **ternary-noise** — related
-
